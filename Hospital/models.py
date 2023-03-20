@@ -46,7 +46,7 @@ class Person(models.Model):
     blood_group=models.CharField(max_length=10, choices=BLOOD_CHOICES)
     @property
     def get_name(self):
-     return self.user.first_name+" "+self.user.last_name
+     return self.first_name+" "+self.last_name
     @property
     def get_id(self):
         return self.user.id
@@ -80,7 +80,6 @@ class Salary(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     date_received = models.DateField(auto_now_add=True)
     is_paid = models.BooleanField(default=False)
-
     def __str__(self):
         return str(self.staff) + ' - ' + str(self.amount)
 
@@ -127,11 +126,11 @@ class Inventory(models.Model):
         return self.medicine_name
 
 class Prescription(models.Model):
+    prescription=models.TextField(default=None, blank=True, null=True)
     medicine = models.ForeignKey('Inventory', on_delete=models.CASCADE, related_name='medicine_prescriptions')
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_prescriptions')
     doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='doctor_prescriptions')
     appointment = models.OneToOneField('Appointment', on_delete=models.CASCADE, primary_key=True, related_name='appointment_prescriptions')
-    prescription=models.TextField(default=None, blank=True, null=True)
 
 class Billing(models.Model):
     billing_date=models.DateTimeField(auto_now_add=True)
