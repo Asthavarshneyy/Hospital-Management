@@ -34,7 +34,6 @@ SHIFT_CHOICES=(
 )
 
 class Person(models.Model):
-    id= models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(max_length=100)
@@ -58,7 +57,7 @@ class Patient(Person):
     medical_history = models.TextField()
     problem=models.CharField(max_length=120)
     doctor=models.ForeignKey("Doctor", on_delete=models.CASCADE, default=None, blank=True, null=True)
-    appointment_details = models.ForeignKey('Appointment', on_delete=models.CASCADE)
+    appointment = models.ForeignKey('Appointment', on_delete=models.CASCADE, related_name='appointment_patient')
     def __str__(self):
         return self.first_name+self.last_name+" ("+self.problem+")"
 
@@ -90,7 +89,7 @@ class Doctor(Staff):
     license_number = models.CharField(max_length=100)
     education = models.CharField(max_length=200)
     def __str__(self):
-        return self.user.first_name+self.department
+        return self.first_name+self.department
 
 class Receptionist(Staff):
     responsibilities = models.TextField()
@@ -102,24 +101,20 @@ class Nurse(Staff):
 class Pharmacist(Staff):
     license_number = models.CharField(max_length=100)
     education = models.CharField(max_length=200)
-    experience = models.CharField(max_length=200)
 
 class Administrator(Staff):
     responsibilities = models.TextField()
-    experience = models.CharField(max_length=200)
 
 class Appointment(models.Model):
-    appointment_id = models.AutoField(primary_key=True)
     dateOfAdmit = models.DateField(auto_now_add=True)
     dateOfDischarge=models.DateField(help_text="use DD/MM/YYYY format",default=None, blank=True, null=True)
     appointment_time = models.TimeField()
     description=models.CharField(max_length=50)
-    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE)
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
+    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='doctor_appointment')
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_appointments')
     status=models.CharField(max_length=40, choices=STATUS_CHOICES, default="Active")
 
 class Inventory(models.Model):
-    medicine_id = models.AutoField(primary_key=True)
     medicine_name = models.CharField(max_length=255)
     price=models.FloatField()
     quantity = models.IntegerField()
@@ -132,22 +127,20 @@ class Inventory(models.Model):
         return self.medicine_name
 
 class Prescription(models.Model):
-    prescription_id = models.AutoField(primary_key=True)
-    medicine = models.ForeignKey('Inventory', on_delete=models.CASCADE)
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
-    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE)
-    appointment = models.ForeignKey('Appointment', on_delete=models.CASCADE, primary_key=True)
+    medicine = models.ForeignKey('Inventory', on_delete=models.CASCADE, related_name='medicine_prescriptions')
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_prescriptions')
+    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='doctor_prescriptions')
+    appointment = models.OneToOneField('Appointment', on_delete=models.CASCADE, primary_key=True, related_name='appointment_prescriptions')
     prescription=models.TextField(default=None, blank=True, null=True)
 
 class Billing(models.Model):
     billing_date=models.DateTimeField(auto_now_add=True)
-    billing_id = models.AutoField(primary_key=True)
     total_amount = models.DecimalField(max_digits=8, decimal_places=2)
     payment_mode = models.CharField(max_length=50)
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
-    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE)
-    staff_responsible = models.ForeignKey('Staff', on_delete=models.CASCADE)
-    prescription_details = models.ForeignKey('Prescription', on_delete=models.CASCADE)
-    appointment = models.ForeignKey('Appointment', on_delete=models.CASCADE)
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_billings')
+    doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='doctor_billings')
+    staff_responsible = models.ForeignKey('Staff', on_delete=models.CASCADE, related_name='staff_responsible_billings')
+    prescription = models.ForeignKey('Prescription', on_delete=models.CASCADE, related_name='prescriptions_billings')
+    appointment = models.ForeignKey('Appointment', on_delete=models.CASCADE, related_name='appointment_billings')
     def __str__(self):
-        return self.patient.id
+        return f"Billing #{self.billing_id} for {self.patient.get_name}"
