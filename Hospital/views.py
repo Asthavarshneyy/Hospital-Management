@@ -11,6 +11,7 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth import authenticate, login, logout
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from .tokens import account_activation_token
@@ -104,7 +105,7 @@ def patient_register(request):
     return render(request, 'create_patient.html', context)
 
 # REGISTER A NEW STAFF
-def staff_register_view(request):
+def staff_register(request):
     if request.method == 'POST':
         staff_type = request.POST.get('staff_type')
         if staff_type == 'doctor':
@@ -146,6 +147,18 @@ def update_profile(request):
     return render(request, 'update_profile.html', context)
 
 # SEE YOUR PROFILE
+@login_required
+def view_profile(request):
+    user = request.user
+    model = get_user_model()
+    
+    # check if the user is of any model
+    if isinstance(user, model):
+        profile = get_object_or_404(model, pk=user.pk)
+        return render(request, 'profile.html', {'profile': profile})
+    else:
+        return HttpResponseForbidden()
+    
 # READ A PATIENT
 @superuser_required
 @receptionist_required
@@ -160,11 +173,12 @@ def all_patients(request):
 @nurse_required
 @receptionist_required
 @superuser_required
+@pharmacist_required
 def patient_detail(request, pk):
     patient = Patient.objects.get(pk=pk)
     # Check that the requesting user has access to the patients
-    if request.user.is_receptionist or request.user.is_superuser or request.is_nurse or request.is_doctor:
-        # Receptionist, Doctor and Nurse can see all patients
+    if request.user.is_receptionist or request.user.is_superuser or request.is_nurse or request.is_doctor or request.is_pharmacist:
+        # Receptionist, Doctor, Pharmacist and Nurse can see all patients
         pass
     else:
         # Return 403 forbidden if user does not have access
@@ -173,10 +187,6 @@ def patient_detail(request, pk):
     # Render template with appointment details
     context = {'patient': patient}
     return render(request, 'patient_detail.html', context)
-
-# READ STAFF 
-
-
     
 def login_view(request):
     if request.method == 'POST':
@@ -345,7 +355,7 @@ def all_billings(request):
     return render(request, 'billings.html', {'billings': billings})
 
 @patient_required
-def patient_prescriptions(request):
+def patient_billings(request):
     billings = Billing.objects.filter(patient=request.user.patient)
     return render(request, 'billings.html', {'billings': billings})
 
