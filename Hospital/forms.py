@@ -4,68 +4,86 @@ from .models import *
 class PatientForm(forms.ModelForm):
     class Meta:
         model = Patient
-        fields = ['first_name', 'last_name', 'medical_history', 'problem', 'doctor', 'appointment']
-        widgets = {
-            'medical_history': forms.Textarea(attrs={'rows': 3}),
-            'problem': forms.Textarea(attrs={'rows': 3})
-        }
+        fields = ['aadhaar_number', 'first_name', 'last_name', 'email', 'dob', 'gender', 'address', 'phone_number', 'blood_group', 'medical_history']
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['aadhaar_number'].widget.attrs['readonly'] = True
 
 class DepartmentForm(forms.ModelForm):
     class Meta:
         model = Department
         fields = ['name']
 
-class StaffForm(forms.ModelForm):
-    class Meta:
-        model = Staff
-        fields = ['first_name', 'last_name', 'department', 'job_title', 'date_joined', 'is_active', 'is_superuser', 'shift', 'experience']
-
-class SalaryForm(forms.ModelForm):
-    class Meta:
-        model = Salary
-        fields = ['staff', 'amount', 'date_received', 'is_paid']
-
 class DoctorForm(forms.ModelForm):
     class Meta:
         model = Doctor
-        fields = ['first_name', 'last_name', 'department', 'job_title', 'date_joined', 'is_active', 'is_superuser', 'shift', 'experience', 'speciality', 'license_number', 'education']
+        fields = '__all__'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['aadhaar_number'].widget.attrs['readonly'] = True
 
 class ReceptionistForm(forms.ModelForm):
     class Meta:
         model = Receptionist
-        fields = ['first_name', 'last_name', 'department', 'job_title', 'date_joined', 'is_active', 'is_superuser', 'shift', 'experience', 'responsibilities']
+        fields = '__all__'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['aadhaar_number'].widget.attrs['readonly'] = True
 
 class NurseForm(forms.ModelForm):
     class Meta:
         model = Nurse
-        fields = ['first_name', 'last_name', 'department', 'job_title', 'date_joined', 'is_active', 'is_superuser', 'shift', 'experience', 'certification', 'responsibilities']
+        fields = '__all__'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['aadhaar_number'].widget.attrs['readonly'] = True
 
 class PharmacistForm(forms.ModelForm):
     class Meta:
         model = Pharmacist
-        fields = ['first_name', 'last_name', 'department', 'job_title', 'date_joined', 'is_active', 'is_superuser', 'shift', 'experience', 'license_number', 'education']
+        fields = '__all__'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['aadhaar_number'].widget.attrs['readonly'] = True
 
 class AdministratorForm(forms.ModelForm):
     class Meta:
         model = Administrator
-        fields = ['first_name', 'last_name', 'department', 'job_title', 'date_joined', 'is_active', 'is_superuser', 'shift', 'experience', 'responsibilities']
+        fields = '__all__'
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['aadhaar_number'].widget.attrs['readonly'] = True
 
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['dateOfAdmit', 'dateOfDischarge', 'appointment_time', 'description', 'doctor', 'patient', 'status']
+        fields = '__all__'
 
 class InventoryForm(forms.ModelForm):
     class Meta:
         model = Inventory
-        fields = ['medicine_name', 'price', 'quantity', 'medicine_use', 'manufacturing_date', 'isbn_number', 'isAvailable', 'expiry_date']
+        fields = '__all__'
 
 class PrescriptionForm(forms.ModelForm):
     class Meta:
         model = Prescription
-        fields = ['appointment', 'medicine', 'patient', 'doctor', 'prescription']
+        fields = '__all__'
 
 class BillingForm(forms.ModelForm):
     class Meta:
         model = Billing
-        fields = ['billing_date', 'total_amount', 'payment_mode', 'patient', 'doctor', 'staff_responsible', 'prescription', 'appointment']
+        fields = '__all__'
+
+class MedicalHistoryForm(forms.ModelForm):
+    class Meta:
+        model = Medical_History
+        fields = ['diagnosis', 'treatment', 'file']
+        widgets = {
+            'diagnosis': forms.Textarea(attrs={'rows': 3}),
+            'treatment': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'address']
