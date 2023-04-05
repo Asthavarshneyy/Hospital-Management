@@ -23,11 +23,10 @@ BLOOD_CHOICES=(
     ("AB-","AB-"),
 )
 
-GENDER_CHOICES=(
+SEX_CHOICES=(
     ("M","Male"),
     ("F", "Female"),
-    ("TR", "Trans"),
-    ("NB", "Non-Binary")
+    ("I", "Intersex"),
 )
 
 SHIFT_CHOICES=(
@@ -51,11 +50,11 @@ class Person(models.Model):
     first_name = models.CharField(max_length=100, default='')
     last_name = models.CharField(max_length=100, default='')
     email = models.EmailField(max_length=100, default='')
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     dob=models.DateField(help_text="use YYYY-MM-DD format", default=timezone.now)
     # lets make age a derived attribute
     age = models.IntegerField(default=0)
-    gender=models.CharField(max_length=10, choices=GENDER_CHOICES, default='')
+    sex=models.CharField(max_length=10, choices=SEX_CHOICES, default='')
     address = models.CharField(max_length=200, default='')
     phone_regex = RegexValidator(
         regex=r'^\d{10}$',
@@ -75,9 +74,9 @@ class Person(models.Model):
 class Patient(Person):
    medical_history=models.OneToOneField('Medical_History', on_delete=models.CASCADE, related_name='medical_history_patient', default=None, null=True, blank=True)
    def __str__(self):
-        return self.first_name+self.last_name
+        return self.first_name+" " + self.last_name
 
-# not sure about it
+
 class Department(models.Model):
     name = models.CharField(max_length=100)
     def __str__(self):
@@ -98,26 +97,24 @@ class Staff(models.Model):
     first_name = models.CharField(max_length=100, default='')
     last_name = models.CharField(max_length=100, default='')
     email = models.EmailField(max_length=100, default='')
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     dob=models.DateField(help_text="use YYYY-MM-DD format", default=timezone.now)
     # lets make age a derived attribute
     age = models.IntegerField(default=0)
-    gender=models.CharField(max_length=10, choices=GENDER_CHOICES, default='')
-    address = models.CharField(max_length=200, default=0)
+    sex=models.CharField(max_length=10, choices=SEX_CHOICES, default='')
+    address = models.CharField(max_length=200, default='')
     phone_regex = RegexValidator(
         regex=r'^\d{10}$',
         message=_("Phone number must be a 10 digit number."),
     )
     phone_number = models.CharField(max_length=10, validators=[phone_regex], default='')
     blood_group=models.CharField(max_length=10, choices=BLOOD_CHOICES, default='')
-    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     job_title = models.CharField(max_length=100, default='')
-    date_joined = models.DateTimeField(auto_now_add=True)
+    date_joined = models.DateField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_employed= models.BooleanField(default=True)
     shift = models.CharField(max_length=1, choices=SHIFT_CHOICES, blank=True, null=True)
     experience = models.CharField(max_length=200)
-    is_superuser = models.BooleanField(default=False)
     @property
     def get_name(self):
      return self.first_name+" "+self.last_name
@@ -128,27 +125,36 @@ class Staff(models.Model):
         abstract = True
 
 class Doctor(Staff):
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     speciality = models.CharField(max_length=255)
     license_number = models.CharField(max_length=100)
     education = models.CharField(max_length=200)
     def __str__(self):
-        return self.first_name+self.department
-
+        return self.first_name+ " "+ self.last_name+ " " + str(self.department)
+    
 class Receptionist(Staff):
     responsibilities = models.TextField()
+    def __str__(self):
+        return self.first_name+" "+self.last_name
 
 class Nurse(Staff):
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     certification = models.CharField(max_length=100)
     responsibilities = models.TextField()
     def __str__(self):
-        return self.first_name+self.department
+        return self.first_name+" "+self.last_name+ " " + str(self.department)
 
 class Pharmacist(Staff):
     license_number = models.CharField(max_length=100)
     education = models.CharField(max_length=200)
+    def __str__(self):
+        return self.first_name+" "+self.last_name
 
 class Administrator(Staff):
+    is_superuser = models.BooleanField(default=False)
     responsibilities = models.TextField()
+    def __str__(self):
+        return self.first_name+" "+self.last_name
 
 class Appointment(models.Model):
     dateOfAdmit = models.DateField(auto_now_add=True)
@@ -197,7 +203,7 @@ class Medical_File(models.Model):
     name = models.CharField(max_length=100)
     file = models.FileField(upload_to='medical_files')
     date=models.DateTimeField(default=timezone.now)
-    medical_history_files = models.ForeignKey('Medical_History', on_delete=models.CASCADE, related_name='medical_history_files', null=True, blank=True)
+    medical_history_files = models.ForeignKey('Medical_History', on_delete=models.CASCADE, related_name='medical_history_files', default=None, null=True, blank=True)
     def __str__(self):
         return self.name
     
@@ -205,6 +211,6 @@ class Medical_History(models.Model):
     files = models.ManyToManyField('Medical_File', related_name='files', null=True, blank=True)
     patient = models.OneToOneField('Patient', on_delete=models.CASCADE, related_name='patient_medical_history', default=None, null=True, blank=True)
     def __str__(self):
-        return f"{self.patient.__str__}"
+        return self.patient.aadhaar_number
     
 

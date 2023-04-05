@@ -22,3 +22,16 @@ class PatientForm(forms.ModelForm):
         medical_history = Medical_History.objects.create()
         cleaned_data['medical_history'] = medical_history
         return cleaned_data
+    
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ['name']
+
+class DoctorForm(forms.ModelForm):
+    class Meta:
+        model = Doctor
+        fields = '__all__'
+        widgets = {
+            'dob': forms.DateInput(attrs={'type': 'date'}),
+        }
