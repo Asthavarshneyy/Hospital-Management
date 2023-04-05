@@ -76,12 +76,8 @@ WSGI_APPLICATION = 'hospital_management.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'HM',
-        'USER': 'asthavarshneyy',
-        'PASSWORD': 'Khloe@kardashian1',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
