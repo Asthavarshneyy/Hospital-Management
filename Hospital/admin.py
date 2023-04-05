@@ -44,8 +44,8 @@ class DepartmentAdmin(admin.ModelAdmin):
 admin.site.register(Department,DepartmentAdmin)
 
 class DoctorAdmin(admin.ModelAdmin):
-    list_display = ('aadhaar_number', 'get_name', 'email', 'speciality', 'department', 'job_title')
-    list_filter = ('department', 'blood_group','is_active', 'is_employed',)
+    list_display = ('aadhaar_number', 'get_name', 'email', 'speciality', 'department', 'job_title', 'start_time', 'end_time')
+    list_filter = ('department', 'blood_group','is_active', 'is_employed','start_time', 'end_time')
     search_fields = ('aadhaar_number', 'first_name', 'last_name', 'email', 'speciality', 'job_title', 'education')
     ordering = ('department', 'first_name', 'date_joined')
     fieldsets = (
@@ -172,6 +172,15 @@ class AdministratorAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Administrator, AdministratorAdmin)
+
+class AppointmentAdmin(admin.ModelAdmin):
+    list_display = ('appointment_time', 'department', 'doctor', 'patient', 'status')
+    list_filter = ('department', 'doctor', 'status')
+    search_fields = ('department__name', 'doctor__name', 'patient__name')
+    date_hierarchy = 'appointment_time'
+    ordering = ('appointment_time',)
+
+admin.site.register(Appointment, AppointmentAdmin)
 
 
 

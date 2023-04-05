@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from datetime import time, datetime, timedelta
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 STATUS_CHOICES=(
@@ -115,6 +117,21 @@ class Staff(models.Model):
     is_employed= models.BooleanField(default=True)
     shift = models.CharField(max_length=1, choices=SHIFT_CHOICES, blank=True, null=True)
     experience = models.CharField(max_length=200)
+    start_time = models.TimeField(default=None, blank=True, null=True)
+    end_time = models.TimeField(default=None, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.shift == 'M':
+            self.start_time = time(hour=8, minute=0)
+            self.end_time = time(hour=12, minute=0)
+        elif self.shift == 'A':
+            self.start_time = time(hour=12, minute=0)
+            self.end_time = time(hour=16, minute=0)
+        elif self.shift == 'N':
+            self.start_time = time(hour=16, minute=0)
+            self.end_time = time(hour=20, minute=0)
+        super().save(*args, **kwargs)
+
     @property
     def get_name(self):
      return self.first_name+" "+self.last_name
@@ -129,6 +146,7 @@ class Doctor(Staff):
     speciality = models.CharField(max_length=255)
     license_number = models.CharField(max_length=100)
     education = models.CharField(max_length=200)
+    
     def __str__(self):
         return self.first_name+ " "+ self.last_name+ " " + str(self.department)
     
@@ -157,16 +175,43 @@ class Administrator(Staff):
         return self.first_name+" "+self.last_name
 
 class Appointment(models.Model):
-    dateOfAdmit = models.DateField(auto_now_add=True)
-    dateOfDischarge=models.DateField(help_text="use DD/MM/YYYY format",default=None, blank=True, null=True)
-    appointment_time = models.TimeField()
-    description=models.CharField(max_length=50)
+    appointment_time = models.DateTimeField(default=None)
+    description=models.CharField(max_length=50, default='')
     department = models.ForeignKey('Department', on_delete=models.CASCADE, related_name='department_appointment')
     doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='doctor_appointment')
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_appointment')
     status=models.CharField(max_length=40, choices=STATUS_CHOICES, default="Active")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_appointment')
     problem=models.TextField(max_length=200, default='')
+    
+    class Meta:
+        unique_together = (('appointment_time', 'doctor'), ('appointment_time', 'patient'))
+
+    def clean(self):
+        super().clean()
+        if self.appointment_time:
+            if self.appointment_time.time() < self.doctor.start_time or \
+               self.appointment_time.time() >= self.doctor.end_time:
+                raise ValidationError("Appointment time must be within doctor's working hours.")
+
+            existing_appointments = Appointment.objects.filter(
+                doctor=self.doctor,
+                appointment_time__date=self.appointment_time.date(),
+                status='Active'
+            )
+
+            # Will add that feature later on
+            # available_slots = self.doctor.available_slots(self.appointment_time.date())
+            # if self.appointment_time not in available_slots:
+            #     raise ValidationError("Appointment time not available. Available timeslots: {}".format(", ".join(map(str, available_slots))))
+
+            # conflicting_appointment = existing_appointments.filter(
+            #     appointment_time=self.appointment_time
+            # ).first()
+
+            # if conflicting_appointment is not None:
+            #     raise ValidationError("Appointment time conflicts with an existing appointment.")
+
 
 class Inventory(models.Model):
     medicine_name = models.CharField(max_length=255)
