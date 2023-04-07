@@ -232,4 +232,21 @@ class PrescriptionAdmin(admin.ModelAdmin):
 
 admin.site.register(Prescription, PrescriptionAdmin)
 
+class BillingAdmin(admin.ModelAdmin):
+    list_display = ('id', 'billing_date', 'total_amount', 'patient', 'doctor', 'prescription', 'appointment', 'status')
+    list_filter = ('status', 'payment_mode', 'billing_date', 'date_created')
+    search_fields = ('patient__first_name', 'patient__last_name', 'doctor__first_name', 'doctor__last_name', 'appointment__appointment_date')
+    fieldsets = (
+        ('Billing Information', {
+            'fields': ('billing_date', 'total_amount', 'status', 'payment_mode', 'billing_receipt')
+        }),
+        ('Related Objects', {
+            'fields': ('patient', 'doctor', 'prescription', 'appointment', 'created_by')
+        })
+    )
+    readonly_fields = ('billing_date', 'date_created', 'date_modified')
+    ordering = ('-date_created',)
+
+admin.site.register(Billing, BillingAdmin)
+
 

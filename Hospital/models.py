@@ -5,51 +5,9 @@ from datetime import time, datetime, timedelta
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from .constants import *
 
 # Create your models here.
-STATUS_CHOICES=(
-    ("Active", "Active"),
-    ("Cancelled", "Cancelled"),
-    ("Rescheduled", "Rescheduled"),
-    ("Completed", "Completed"),
-)
-
-BLOOD_CHOICES=(
-    ("O+","O+"),
-    ("O-","O-"),
-    ("A+","A+"),
-    ("A-","A-"),
-    ("B+","B+"),
-    ("B-","B-"),
-    ("AB+","AB+"),
-    ("AB-","AB-"),
-)
-
-SEX_CHOICES=(
-    ("M","Male"),
-    ("F", "Female"),
-    ("I", "Intersex"),
-)
-
-SHIFT_CHOICES=(
-    ('M', 'Morning'),
-    ('A', 'Afternoon'),
-    ('N', 'Night')
-)
-
-MEDICINE_TYPES = (
-        ('tab', 'Tablet'),
-        ('cap', 'Capsule'),
-        ('syp', 'Syrup'),
-        ('inj', 'Injection'),
-        ('oth', 'Other'),
-    )
-
-PRESCRIPTION_STATUS_CHOICES=(
-    ("Active", "Active"),
-    ("Expired", "Expired"),
-    ("Completed", "Completed"),
-)
 
 class Person(models.Model):
     aadhaar_regex = RegexValidator(
@@ -197,6 +155,8 @@ class Appointment(models.Model):
     status=models.CharField(max_length=40, choices=STATUS_CHOICES, default="Active")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_appointment')
     problem=models.TextField(max_length=200, default='')
+    def __str__(self):
+        return f"{self.patient}-{self.doctor}"
     
     class Meta:
         unique_together = (('appointment_time', 'doctor'), ('appointment_time', 'patient'))
@@ -274,13 +234,19 @@ class Prescription(models.Model):
 class Billing(models.Model):
     billing_date=models.DateTimeField(auto_now_add=True)
     total_amount = models.DecimalField(max_digits=8, decimal_places=2)
-    payment_mode = models.CharField(max_length=50)
+    payment_mode = models.CharField(max_length=50, choices=PAYMENT_MODE_CHOICES, default='card')
+    billing_receipt=models.FileField(upload_to='Billing_Receipt_files')
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_billing')
     doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='doctor_billing')
     prescription = models.ForeignKey('Prescription', on_delete=models.CASCADE, related_name='prescriptions_billing')
-    appointment = models.ForeignKey('Appointment', on_delete=models.CASCADE, related_name='appointment_billing')
+    appointment = models.OneToOneField('Appointment', on_delete=models.CASCADE, related_name='appointment_billing')
+    created_by =models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_billing', default=None)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=20, choices=BILLING_STATUS_CHOICES, default='unpaid')
+    
     def __str__(self):
-        return f"Billing #{self.billing_id} for {self.patient.get_name}"
+        return f"{self.patient.get_name} + {self.status}"
 
 class Medical_File(models.Model):
     name = models.CharField(max_length=100)
