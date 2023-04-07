@@ -37,6 +37,14 @@ SHIFT_CHOICES=(
     ('N', 'Night')
 )
 
+MEDICINE_TYPES = (
+        ('tab', 'Tablet'),
+        ('cap', 'Capsule'),
+        ('syp', 'Syrup'),
+        ('inj', 'Injection'),
+        ('oth', 'Other'),
+    )
+
 class Person(models.Model):
     aadhaar_regex = RegexValidator(
         regex=r'^\d{12}$',
@@ -214,16 +222,36 @@ class Appointment(models.Model):
 
 
 class Inventory(models.Model):
-    medicine_name = models.CharField(max_length=255)
-    price=models.FloatField()
-    quantity = models.IntegerField()
-    medicine_use = models.TextField()
-    manufacturing_date=models.DateField()
-    isbn_number=models.BigIntegerField(default=None, blank=True, null=True)
-    isAvailable=models.BooleanField(default=False)
+    medicine_name = models.CharField(max_length=255, default='')
+    medicine_type = models.CharField(max_length=3, choices=MEDICINE_TYPES)
+    description = models.TextField(default='')
+    manufacturer = models.CharField(max_length=255, default='')
+    supplier = models.CharField(max_length=255, default='')
+    cost_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    selling_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    quantity = models.IntegerField(default=0)
+    medicine_use = models.TextField(default='')
+    minimum_quantity = models.PositiveIntegerField(default=0, help_text="Minimum quantity before restocking is required")
+    is_available = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    manufacturing_date=models.DateField(help_text="use YYYY-MM-DD format", default=timezone.now)
+    isbn_number=models.BigIntegerField(unique=True, default=0)
+    is_available=models.BooleanField(default=False)
     expiry_date = models.DateField()
     def __str__(self):
-        return self.medicine_name
+        return f"{self.medicine_name} ({self.medicine_type})"
+    
+    @property
+    def isAvailable(self):
+        return self.quantity >= self.minimum_quantity
+    
+    def save(self, *args, **kwargs):
+        self.is_available = self.isAvailable
+        super(Inventory, self).save(*args, **kwargs)
+        
+    class Meta:
+        ordering = ['-updated_at']
 
 class Prescription(models.Model):
     prescription=models.TextField(default=None, blank=True, null=True)

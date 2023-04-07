@@ -182,5 +182,32 @@ class AppointmentAdmin(admin.ModelAdmin):
 
 admin.site.register(Appointment, AppointmentAdmin)
 
+class InventoryAdmin(admin.ModelAdmin):
+    list_display = ('medicine_name', 'medicine_type', 'description', 'manufacturer', 'supplier', 'cost_price', 'selling_price', 'quantity', 'minimum_quantity', 'is_available', 'manufacturing_date', 'isbn_number', 'expiry_date')
+    list_filter = ('medicine_type', 'manufacturer', 'supplier', 'is_available', 'manufacturing_date', 'expiry_date')
+    search_fields = ('medicine_name', 'description', 'manufacturer', 'supplier')
+    readonly_fields = ('created_at', 'updated_at')
+    fieldsets = (
+        ('General Information', {
+            'fields': ('medicine_name', 'medicine_type', 'description', 'manufacturer', 'supplier')
+        }),
+        ('Price Information', {
+            'fields': ('cost_price', 'selling_price')
+        }),
+        ('Inventory Information', {
+            'fields': ('quantity', 'minimum_quantity', 'is_available')
+        }),
+        ('Additional Information', {
+            'fields': ('medicine_use', 'manufacturing_date', 'isbn_number', 'expiry_date')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',),
+        }),
+    )
+
+admin.site.register(Inventory, InventoryAdmin)
+
+
 
 
