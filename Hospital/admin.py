@@ -208,6 +208,28 @@ class InventoryAdmin(admin.ModelAdmin):
 
 admin.site.register(Inventory, InventoryAdmin)
 
+class PrescriptionAdmin(admin.ModelAdmin):
+    list_display = ('patient', 'doctor', 'date_created', 'date_modified', 'created_by', 'status')
+    list_filter = ('patient', 'doctor', 'created_by', 'status')
+    search_fields = ('patient__first_name', 'patient__last_name', 'doctor__first_name', 'doctor__last_name')
+    fieldsets = (
+        (None, {
+            'fields': ('patient', 'doctor', 'appointment', 'created_by')
+        }),
+        ('Prescription Details', {
+            'fields': ('prescription',)
+        }),
+        ('Status', {
+            'fields': ('status',)
+        }),
+        ('Timestamps', {
+            'fields': ('date_created', 'date_modified'),
+            'classes': ('collapse',),
+        }),
+    )
+    readonly_fields = ('date_created', 'date_modified')
+    ordering = ['-date_modified']
 
+admin.site.register(Prescription, PrescriptionAdmin)
 
 

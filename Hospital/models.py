@@ -45,6 +45,12 @@ MEDICINE_TYPES = (
         ('oth', 'Other'),
     )
 
+PRESCRIPTION_STATUS_CHOICES=(
+    ("Active", "Active"),
+    ("Expired", "Expired"),
+    ("Completed", "Completed"),
+)
+
 class Person(models.Model):
     aadhaar_regex = RegexValidator(
         regex=r'^\d{12}$',
@@ -254,12 +260,16 @@ class Inventory(models.Model):
         ordering = ['-updated_at']
 
 class Prescription(models.Model):
-    prescription=models.TextField(default=None, blank=True, null=True)
-    medicine = models.ForeignKey('Inventory', on_delete=models.CASCADE, related_name='medicine_prescription')
+    prescription=models.FileField(upload_to='Precriptions_files')
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_prescription')
     doctor = models.ForeignKey('Doctor', on_delete=models.CASCADE, related_name='doctor_prescription')
     appointment = models.OneToOneField('Appointment', on_delete=models.CASCADE, primary_key=True, related_name='appointment_prescription')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_prescription')
+    date_created=models.DateTimeField(auto_now_add=True)
+    date_modified=models.DateTimeField(auto_now_add=True)
+    status=models.CharField(max_length=20, choices=PRESCRIPTION_STATUS_CHOICES, default='active')
+    def __str__(self):
+        return f"{self.patient}-{self.doctor}"
 
 class Billing(models.Model):
     billing_date=models.DateTimeField(auto_now_add=True)
