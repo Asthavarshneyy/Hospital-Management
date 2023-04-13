@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% comment %} <title>{% block title %}{% endblock %}</title> {% endcomment %}
+    <title>Home</title>
+
+    <!-- box icons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+     <!-- custom css -->
+     <link rel="stylesheet" href="base.css">
+
+</head>
+<body>
+    <nav class="sidebar close">
+        <header>
+            <a href="#" class="logo close"><i class='bx bx-plus-medical icon'></i>
+                <span class="text">MedSync</span></a>
+
+            <div class="image-text">
+                <span class="image close">
+                    <img src="patient.jpg" alt="patient image">
+                </span>
+
+                <div class="text header-text">
+                    <span class="name">Jane Doe</span>
+                    <span class="designation">Patient</span>
+
+                </div>
+            </div>
+        <i class='bx bx-chevron-left toggle'></i>
+
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+
+                <li class="search-box">
+                    <a href="#">
+                        <i class='bx bx-search icon'></i>
+                        <input type="search" placeholder="Search">
+                    </a>
+                </li>
+
+                <ul class="menu-links">
+
+                    <li class="nav-links">
+                        <a href="#">
+                            <i class='bx bxs-user icon'></i>
+                            <span class="nav-text text ">My Details</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-links">
+                        <a href="#">
+                            <i class='bx bxs-book-add icon'></i>
+                            <span class="nav-text text">My Medical History</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-links">
+                        <a href="#">
+                            <i class='bx bx-rupee icon'></i>
+                            <span class="nav-text text">My Payments</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-links">
+                        <a href="#">
+                            <i class='bx bxs-file icon'></i>
+                            <span class="nav-text text">My Prescriptions</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-links">
+                        <a href="#">
+                            <i class='bx bxs-edit-alt icon'></i>
+                            <span class="nav-text text">Edit Profile</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-links">
+                        <a href="#">
+                            <i class='bx bx-log-out icon'></i>
+                            <span class="nav-text text">Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}
+        <!-- Content Goes here -->
+    {% endblock content %}
+
+    <script src="base.js"></script>
+
+</body>
+</html>
