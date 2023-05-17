@@ -16,9 +16,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR= BASE_DIR/'templates'
 
-STATIC_URL = '/static/'
-STATIC_ROOT=BASE_DIR/'static'
-STATICFILES_DIR= BASE_DIR/'Hospital_management/static'
+STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]  # new
 
 
 # Quick-start development settings - unsuitable for production
