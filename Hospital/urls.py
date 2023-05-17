@@ -1,9 +1,10 @@
-# from django.urls import path
-# from . import views
+from django.urls import path
+from .views import *
 
-# app_name="Hospital"
+app_name="Hospital"
 
-# urlpatterns = [
+urlpatterns = [
+      path('',trial, name='trial_page')]
 #     path('', views.landing_page, name='landing_page'),
 #     path('patient_register/', views.patient_register, name='patient_register'),
 #     path('staff_register/', views.staff_register, name='staff_register'),

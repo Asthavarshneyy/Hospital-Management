@@ -1,25 +1,31 @@
-# from django.urls import reverse_lazy
-# from django.views.generic import CreateView
-# from django.shortcuts import render, redirect, get_object_or_404
-# from django.http import HttpResponseForbidden
-# from django.contrib.auth.decorators import login_required, user_passes_test
-# from django.contrib.admin.views.decorators import staff_member_required
-# from django.contrib import messages
-# from django.http import HttpResponse
-# from django.core.exceptions import PermissionDenied
-# from django.views.generic import ListView, DetailView
-# from django.contrib.auth import authenticate, login, logout
-# from django.contrib.auth import get_user_model
-# from django.contrib.sites.shortcuts import get_current_site
-# from django.template.loader import render_to_string
-# from django.core.mail import send_mail
-# from .models import *
-# from .forms import *
-# from .decorators import *
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseForbidden
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib import messages
+from django.http import HttpResponse
+from django.core.exceptions import PermissionDenied
+from django.views.generic import ListView, DetailView
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import get_user_model
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from .models import *
+from .forms import *
+from .decorators import *
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import *
 
-# from .models import *
+
+def trial(request):
+    context={}
+    return render(request, "base.html", context)
+
+
 
 # @receiver(post_save, sender=Patient)
 # def create_medical_history(sender, instance, created, **kwargs):

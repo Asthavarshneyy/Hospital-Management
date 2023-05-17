@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +12,7 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
      <!-- custom css -->
-     <link rel="stylesheet" href="base.css">
+     <link rel="stylesheet" href="{% static 'base.css' %}">
 
 </head>
 <body>
@@ -22,7 +23,7 @@
 
             <div class="image-text">
                 <span class="image close">
-                    <img src="patient.jpg" alt="patient image">
+                    <img src="{% static 'patient.jpg' %}" alt="My image">
                 </span>
 
                 <div class="text header-text">
@@ -97,7 +98,7 @@
         <!-- Content Goes here -->
     {% endblock content %}
 
-    <script src="base.js"></script>
+    <script src="{% static 'base.js' %}"></script>
 
 </body>
 </html>
